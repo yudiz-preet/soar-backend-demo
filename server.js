@@ -1,24 +1,53 @@
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+const express = require("express");
+const { createServer } = require("http");
+const { Server } = require("socket.io");
 
-app.get('/', function(req, res){ res.sendFile(__dirname + '/index.html'); });
+const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, { /* options */ });
 
-//Whenever someone connects this gets executed
-io.on('connection', function(socket){
-   console.log('A user connected',socket);
-   
-   //Whenever someone disconnects this piece of code executed
-   socket.on('disconnect', function () {
-      console.log('A user disconnected');
-   });
+io.on("connection", (socket) => {
+  console.log({ socketId: socket?.id || '' })
 
-    socket.on('chat message', function(msg){
-        console.log('message: ' + msg);
-    });
+  let data = [
+    {
+      name: "Chart-1",
+      type: "line",
+      data: [0, 15, 25, 20, 32, 27]
+    },
+    {
+      name: "Chart-2",
+      type: "line",
+      data: [0, 32, 20, 40, 20, 30]
+    },
+    {
+      name: "Chart-3",
+      type: "line",
+      data: [0, 38, 50, 10, 28, 43]
+    }
+  ]
+  setInterval(() => {
+     data = data.map(item => {
+        return {
+            ...item,
+            data: item.data.map((_, index) => {
+                if(index === item.data.length - 1) {
+                    return Math.floor(Math.random() * (50 - 0 + 1) + 0)
+                } else {
+                    return item.data[index + 1]
+                }
+            })
+        }
+     })
+    socket.emit('testData', data)
+  }, 5000)
 
+  socket.on("disconnect", (reason) => {
+    console.log('disconnect connection from server ', reason)
+  });
 
 });
-http.listen(3000, function(){
-   console.log('listening on *:3000');
+
+httpServer.listen(3000, () => {
+    console.log("3000 PORT listening....")
 });
