@@ -4,16 +4,40 @@ const { Server } = require("socket.io");
 require('dotenv').config()
 const cors = require('cors');
 
-const app = express();
-app.use(cors({
-  origin: '*'
-}));
-const httpServer = createServer(app);
-const io = new Server(httpServer, {
+
+const corsOpts = {
+  origin: '*',
+
+  methods: [
+    'GET',
+    'POST',
+    'PUT',
+    'DELETE'
+  ],
+
+  allowedHeaders: [
+    'Access-Control-Allow-Headers', 'Content-Type, Authorization'
+  ]
+}
+
+const socketOptions = {
+  pingInterval: 30000,
+  pingTimeout: 15000,
+  cookie: false,
+  maxHttpBufferSize: 1024,
+  serveClient: true,
+  transports: ['polling', 'websocket'],
+  allowUpgrades: true,
+  perMessageDeflate: false,
   cors: {
-    origin: '*'
-  }
-});
+      origin: '*',
+  },
+};
+
+const app = express();
+app.use(cors(corsOpts));
+const httpServer = createServer(app);
+const io = new Server(httpServer, socketOptions);
 
 io.on("connection", (socket) => {
   console.log({ socketId: socket?.id || '' })
