@@ -9,7 +9,11 @@ app.use(cors({
   origin: '*'
 }));
 const httpServer = createServer(app);
-const io = new Server(httpServer, { /* options */ });
+const io = new Server(httpServer, {
+  cors: {
+    origin: '*'
+  }
+});
 
 io.on("connection", (socket) => {
   console.log({ socketId: socket?.id || '' })
