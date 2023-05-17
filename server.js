@@ -26,6 +26,7 @@ io.on("connection", (socket) => {
       data: [0, 38, 50, 10, 28, 43]
     }
   ]
+  let labels = [0,1,2,3,4,5]
   setInterval(() => {
      data = data.map(item => {
         return {
@@ -39,7 +40,8 @@ io.on("connection", (socket) => {
             })
         }
      })
-    socket.emit('testData', data)
+     labels = labels.map((item) => item + 1)
+    socket.emit('testMessage', data, labels.map(item => item.toString()))
   }, 5000)
 
   socket.on("disconnect", (reason) => {
